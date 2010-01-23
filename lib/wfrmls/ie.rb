@@ -1,9 +1,9 @@
 require 'watir'
 require 'street_address'
 
-module Wfmls
+
+module Wfrmls
   class IE
-    VERSION = '0.3.0'
 
     def initialize(ie, username, password)
       @username = username
@@ -110,4 +110,3 @@ module Wfmls
     end
   end
 end
-

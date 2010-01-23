@@ -2,10 +2,14 @@
 
 CONFIG_FILE_NAME = File.expand_path('~/wfrmls_config.yml')
 
-require 'wfrmls'
+require 'wfrmls/ie'
+require 'wfrmls/cli/options'
 
-address = ARGV[0]
+module Wfrmls
+  VERSION='0.3.0'
+end
 
+options = Wfrmls::CLI::Options.parse! ARGV
 
 config = nil
 begin
@@ -20,11 +24,12 @@ username = config['username']
 password = config['password']
 
 ie = Watir::Browser.new
-mls = Wfrmls.new(ie, username, password)
+mls = Wfrmls::IE.new(ie, username, password)
 
-addr = StreetAddress::US.parse(address)
+
+addr = StreetAddress::US.parse(options.address)
 if addr.nil?
-  addr = StreetAddress::US.parse(address+', UT')
+  addr = StreetAddress::US.parse(options.address+', UT')
 end
 
 puts addr
