@@ -1,6 +1,6 @@
 = wfrmls
 
-* 
+* http://github.com/zhon 
 
 == DESCRIPTION:
 
@@ -9,16 +9,18 @@ Help searching the WFRMLS
 == FEATURES/PROBLEMS:
 
 * Occasionally you will end up on the wrong page, PLEASE VERIFY ALL DATA!
+* Will only run on windows using Internet Explorer
 
 == SYNOPSIS:
 
   wfrmls <address>
 
+  wfrmls --help
+
 == REQUIREMENTS:
 
 * watir
 * StreetAddress
-* hoe
 
 == INSTALL:
 

@@ -5,10 +5,6 @@ CONFIG_FILE_NAME = File.expand_path('~/wfrmls_config.yml')
 require 'wfrmls/ie'
 require 'wfrmls/cli/options'
 
-module Wfrmls
-  VERSION='0.3.0'
-end
-
 options = Wfrmls::CLI::Options.parse! ARGV
 
 config = nil

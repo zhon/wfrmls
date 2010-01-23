@@ -5,4 +5,7 @@ README.txt
 Rakefile
 bin/wfrmls
 lib/wfrmls.rb
-test/test_wfrmls.rb
+lib/wfrmls/cli/options.rb
+lib/wfrmls/ie.rb
+test/wfrmls_test.rb
+

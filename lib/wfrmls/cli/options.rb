@@ -1,4 +1,5 @@
-require "optparse"
+require 'optparse'
+require 'wfrmls'
 
 module Wfrmls #:nodoc:
   module CLI #:nodoc:
