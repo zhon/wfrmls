@@ -1,0 +1,23 @@
+require 'autotest'
+
+
+Autotest.add_hook :initialize do |at|
+#  at.add_exception %r%^\./(?:db|doc|log|public|script|tmp|vendor)%
+
+  at.clear_mappings
+
+  # Map filename w/o slash to test name.
+  at.add_mapping %r%^lib/.*?([^/]+)\.rb$% do |_, m|
+    ["test/#{m[1]}_test.rb"]
+  end
+
+  # Map test to themselves
+  at.add_mapping %r%^test/.*_test.rb% do |filename, _|
+    filename
+  end
+
+end
+
+
+# vim:filetype=ruby
+
