@@ -92,13 +92,34 @@ module Wfrmls
     def show_tax_data(addr)
       goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
 
-      street_regx = Regexp.new(addr.street, Regexp::IGNORECASE)
-      @ie.table(:class, 'tax-data').rows.each do |row|
-        if street_regx =~ row.text
-          row.cells[2].links[1].click
-          break
+      rows = find_tax_data_rows_by_house_and_street(addr)
+
+      case rows.size
+      when 0
+        puts "#{addr} not found in tax data"
+      when 1
+        click_link rows[0]
+      else
+        puts 'Possible matches:'
+        rows.each do |item|
+          puts item.cell(:class, 'last-col').text
         end
       end
+    end
+
+    def click_link(item)
+      item.link(:index, 1).click
+      #rows[0].cells[2].links[1].click
+    end
+
+    def find_tax_data_rows_by_house_and_street(addr)
+      rows = []
+      @ie.table(:class, 'tax-data').rows.to_a[1..-1].each do |row|
+        if row.cell(:class, 'last-col').text.include? addr.street.upcase
+          rows << row
+        end
+      end
+      rows 
     end
 
     def goto(url)
@@ -107,6 +128,65 @@ module Wfrmls
         login
         @ie.goto url
       end
+    end
+
+    def collect_property_details(addr)
+      show_tax_data(addr) unless @ie.url.include? 'taxdata/details' 
+
+      #@ie.goto "file:///e:/trash/tax_data.html"
+
+      doc = @ie.xmlparser_document_object
+
+      details = {}
+
+      doc.search('tr/th').each do |item|
+        case nbsp2sp(item.text)
+        when /NAME:/
+          details[:owner] = item.parent.search('td').text
+        when /ADDRESS:/
+          details[:address] = item.parent.search('td').text.strip
+        when /PARCEL SPECIFIC INFO:/
+          nbsp2sp(item.parent.search('td').text) =~ /Total Acres: ([.0-9]+)/
+          details[:lot_size] = $1
+        when /VALUATION SPECIFIC INFO:/
+          nbsp2sp(item.parent.search('td').text) =~ /Final Value: (\$[0-9,]+)/
+          details[:tax_value] = $1
+        when /GENERAL INFO:/
+          nbsp2sp(item.parent.search('td').text) =~ /Yr Built: ([0-9]+)/
+          details[:year_built] = $1
+        when /AREA INFO:/
+          house_size = 0
+          data = nbsp2sp(item.parent.search('td').text)
+          data =~ /Main Floor Area: ([,0-9]+)/
+          house_size += $1.sub(',','').to_i if $1
+          data =~ /Basement Area: ([,0-9]+)/
+          house_size += $1.sub(',','').to_i if $1
+          data =~ /Upper Floor Area: ([,0-9]+)/
+          house_size += $1.sub(',','').to_i if $1
+          details[:house_size] = house_size
+        when /EXTERIOR:/
+          details[:exterior] ||= {}
+          data = nbsp2sp(item.parent.search('td').text)
+          data =~ /Ext. Wall Type: (\w+)/
+          details[:exterior][:wall] = $1
+          data =~ /Masonry Trim: (\w+)/
+          details[:exterior][:masonry_trim] = $1
+
+        when /CARPORT & GARAGE INFO:/
+          data = nbsp2sp(item.parent.search('td').text)
+          data =~ /(.*): ([,0-9]+)/
+          if $1
+            key = $1.gsub(/[- ]/, '_').downcase.to_sym
+            details[key] = $2
+          end
+        end
+      end
+
+      puts details.to_yaml
+    end
+
+    def nbsp2sp(s)
+      s.gsub("\xC2\xA0", ' ')
     end
   end
 end
