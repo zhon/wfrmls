@@ -24,4 +24,12 @@ class WfrmlsTest < Test::Unit::TestCase
 
     ie.show_tax_data(addr)
   end
+
+  def xxxtest_collect_property_details
+    ie = Watir::Browser.new
+    ie = Wfrmls::IE.new(ie, nil, nil)
+
+    addr = StreetAddress::US.parse('3537 W 2400 S, SYRACUSE, UT')
+    ie.collect_property_details(addr)
+  end
 end

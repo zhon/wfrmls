@@ -7,9 +7,9 @@ module Wfrmls #:nodoc:
       class << self
         alias_method :parse!, :new
       end
-      
+
       attr_reader :address
-    
+
       def initialize(*args)
         address = ''
 
@@ -22,7 +22,11 @@ module Wfrmls #:nodoc:
           #opt.on("-r [PATH]", "Require [PATH] before executing") do |path|
           #  @paths_to_require << path
           #end
-      
+
+          opt.on("-c", "Comp this address") do
+            @comp = true
+          end
+
           opt.on("-h", "-?", "--help", "Show this message") do
             puts opt
             exit
@@ -38,6 +42,11 @@ module Wfrmls #:nodoc:
         @address = argv.dup.join(' ')
       end 
 
+      def comp?
+        @comp
+      end
+
+    private
       def version
         Wfrmls::VERSION
       end

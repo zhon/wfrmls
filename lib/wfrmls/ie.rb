@@ -31,30 +31,50 @@ module Wfrmls
     def lookup_address(addr)
       goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
       residential_full_search
-
       status
-
-      @ie.text_field(:id, 'street').set addr.street
-      @ie.text_field(:id, 'housenum').set addr.number
-
-      city(addr.city)
+      address(addr)
 
       result_count = @ie.span(:id, 'action_search_count').text.to_i
 
       if result_count > 0
-
-        @ie.button(:id, 'SEARCH_button').click
-        begin
-          sleep 1
-          @ie.checkbox(:id, 'ListingController').click
-        rescue
-          retry
-        end
-
-        @ie.select_list(:id, 'report-selector').set('Full Report')
+        show_full_listings
       else
         show_tax_data(addr)
       end
+    end
+
+    def show_full_listings
+      @ie.button(:id, 'SEARCH_button').click
+      sleep_until { @ie.checkbox(:id, 'ListingController').exists? }
+      @ie.checkbox(:id, 'ListingController').click
+      @ie.select_list(:id, 'report-selector').set('Full Report')
+    end
+
+    def comp(addr)
+      # TODO remove the sleeps
+      house_details = collect_property_details(addr)
+      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
+
+      @ie.button(:id, 'CLEAR_button').click
+
+      sleep 3
+
+      residential_full_search
+      status
+      city(addr.city)
+
+      @ie.text_field(:id, 'days_back_status').set('120')
+
+      
+      @ie.text_field(:name, 'tot_sqf1').set((house_details[:house_size] - 200).to_s)
+      @ie.text_field(:name, 'tot_sqf2').set((house_details[:house_size] + 200).to_s)
+
+      @ie.text_field(:name, 'yearblt1').set((house_details[:year_built] - 6).to_s)
+      @ie.text_field(:name, 'yearblt2').set((house_details[:year_built] + 6).to_s)
+
+      sleep 3
+
+      show_full_listings
     end
 
     def status
@@ -78,6 +98,12 @@ module Wfrmls
       @ie.focus
 
       sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'City is' }
+    end
+
+    def address(addr)
+      @ie.text_field(:id, 'street').set addr.street
+      @ie.text_field(:id, 'housenum').set addr.number
+      city(addr.city)
     end
 
     def sleep_until &block
@@ -109,7 +135,6 @@ module Wfrmls
 
     def click_link(item)
       item.link(:index, 1).click
-      #rows[0].cells[2].links[1].click
     end
 
     def find_tax_data_rows_by_house_and_street(addr)
@@ -133,8 +158,6 @@ module Wfrmls
     def collect_property_details(addr)
       show_tax_data(addr) unless @ie.url.include? 'taxdata/details' 
 
-      #@ie.goto "file:///e:/trash/tax_data.html"
-
       doc = @ie.xmlparser_document_object
 
       details = {}
@@ -153,7 +176,7 @@ module Wfrmls
           details[:tax_value] = $1
         when /GENERAL INFO:/
           nbsp2sp(item.parent.search('td').text) =~ /Yr Built: ([0-9]+)/
-          details[:year_built] = $1
+          details[:year_built] = $1.to_i
         when /AREA INFO:/
           house_size = 0
           data = nbsp2sp(item.parent.search('td').text)
@@ -171,7 +194,6 @@ module Wfrmls
           details[:exterior][:wall] = $1
           data =~ /Masonry Trim: (\w+)/
           details[:exterior][:masonry_trim] = $1
-
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
           data =~ /(.*): ([,0-9]+)/
@@ -182,7 +204,7 @@ module Wfrmls
         end
       end
 
-      puts details.to_yaml
+      details
     end
 
     def nbsp2sp(s)

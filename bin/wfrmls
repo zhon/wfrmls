@@ -30,6 +30,11 @@ end
 
 puts addr
 
-mls.lookup_address(addr)
+if options.comp?
+  mls.comp(addr)
+else
+  puts mls.collect_property_details(addr).to_yaml
+  mls.lookup_address(addr)
+end
 
 
