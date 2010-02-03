@@ -1,6 +1,9 @@
-=== 1.0.0 / 2010-01-22
+=== 0.3.0 / 2010-01-22
 
-* 1 major enhancement
+* Login to site
+* Search for property
+* Show results in browser
 
-  * Birthday!
+=== 0.3.1 / 2010-01-27
 
+* Added ability to comp
