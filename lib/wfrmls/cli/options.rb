@@ -11,8 +11,6 @@ module Wfrmls #:nodoc:
       attr_reader :address
 
       def initialize(*args)
-        address = ''
-
         argv = args.flatten
         
         opt = OptionParser.new do |opt|
