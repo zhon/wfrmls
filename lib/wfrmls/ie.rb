@@ -196,10 +196,10 @@ module Wfrmls
           details[:exterior][:masonry_trim] = $1
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
-          data =~ /(.*): ([,0-9]+)/
+          data =~ /(.*): ([0-9]+)/
+          details[:parking] = {}
           if $1
-            key = $1.gsub(/[- ]/, '_').downcase.to_sym
-            details[key] = $2
+            details[:parking][$1] = $2.to_i
           end
         end
       end
