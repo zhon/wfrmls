@@ -50,14 +50,14 @@ module Wfrmls
       @ie.select_list(:id, 'report-selector').set('Full Report')
     end
 
-    def comp(addr)
+    def comp(addr, house_details = collect_property_details(addr))
       # TODO remove the sleeps
-      house_details = collect_property_details(addr)
       goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
 
       @ie.button(:id, 'CLEAR_button').click
-
       sleep 3
+
+      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
 
       residential_full_search
       status
