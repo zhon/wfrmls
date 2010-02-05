@@ -34,16 +34,19 @@ module Wfrmls
       status
       address(addr)
 
-      result_count = @ie.span(:id, 'action_search_count').text.to_i
-
-      if result_count > 0
+      if search_results_availible?
         show_full_listings
       else
         show_tax_data(addr)
       end
     end
 
+    def search_results_availible?
+      result_count = @ie.span(:id, 'action_search_count').text.to_i > 0
+    end
+
     def show_full_listings
+      return unless search_results_availible?
       @ie.button(:id, 'SEARCH_button').click
       sleep_until { @ie.checkbox(:id, 'ListingController').exists? }
       @ie.checkbox(:id, 'ListingController').click
@@ -51,11 +54,9 @@ module Wfrmls
     end
 
     def comp(addr, house_details = collect_property_details(addr))
-      # TODO remove the sleeps
       goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
 
-      @ie.button(:id, 'CLEAR_button').click
-      sleep 3
+      clear_search
 
       goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
 
@@ -66,15 +67,22 @@ module Wfrmls
       @ie.text_field(:id, 'days_back_status').set('120')
 
       
-      @ie.text_field(:name, 'tot_sqf1').set((house_details[:house_size] - 200).to_s)
-      @ie.text_field(:name, 'tot_sqf2').set((house_details[:house_size] + 200).to_s)
+      @ie.text_field(:name,'tot_sqf1').set((house_details[:house_size]-200).to_s)
+      @ie.text_field(:name,'tot_sqf2').set((house_details[:house_size]+200).to_s)
 
-      @ie.text_field(:name, 'yearblt1').set((house_details[:year_built] - 6).to_s)
-      @ie.text_field(:name, 'yearblt2').set((house_details[:year_built] + 6).to_s)
+      @ie.text_field(:name,'yearblt1').set((house_details[:year_built]-6).to_s)
+      @ie.text_field(:name,'yearblt2').set((house_details[:year_built]+6).to_s)
 
-      sleep 3
+      sleep_until(3) { 
+        @ie.dd(:id,'left_search_criteria').text.include? 'Year Built at most'
+      }
 
       show_full_listings
+    end
+
+    def clear_search
+      @ie.button(:id,'CLEAR_button').click
+      sleep_until(3) { @ie.dd(:id, 'left_search_criteria').text !~ /City/ }
     end
 
     def status
@@ -106,12 +114,12 @@ module Wfrmls
       city(addr.city)
     end
 
-    def sleep_until &block
+    def sleep_until max=10, &block
       count = 0
       until yield block
         sleep 1
         count += 1
-        exit if count > 10
+        return if count > max
       end
     end
 
