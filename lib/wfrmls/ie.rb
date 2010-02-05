@@ -197,8 +197,9 @@ module Wfrmls
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
           data =~ /(.*): ([0-9]+)/
-          details[:parking] = {}
+          details[:parking] = nil
           if $1
+            details[:parking] = {}
             details[:parking][$1] = $2.to_i
           end
         end
