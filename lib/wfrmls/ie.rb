@@ -30,6 +30,8 @@ module Wfrmls
 
     def lookup_address(addr)
       goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
+      clear_search
+      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
       residential_full_search
       status
       address(addr)
