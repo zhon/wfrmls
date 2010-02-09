@@ -66,14 +66,14 @@ module Wfrmls
 
       @ie.text_field(:id, 'days_back_status').set('120')
 
-      
+
       @ie.text_field(:name,'tot_sqf1').set((house_details[:house_size]-200).to_s)
       @ie.text_field(:name,'tot_sqf2').set((house_details[:house_size]+200).to_s)
 
       @ie.text_field(:name,'yearblt1').set((house_details[:year_built]-6).to_s)
       @ie.text_field(:name,'yearblt2').set((house_details[:year_built]+6).to_s)
 
-      sleep_until(3) { 
+      sleep_until(3) {
         @ie.dd(:id,'left_search_criteria').text.include? 'Year Built at most'
       }
 
@@ -152,7 +152,7 @@ module Wfrmls
           rows << row
         end
       end
-      rows 
+      rows
     end
 
     def goto(url)
@@ -164,7 +164,7 @@ module Wfrmls
     end
 
     def collect_property_details(addr)
-      show_tax_data(addr) unless @ie.url.include? 'taxdata/details' 
+      show_tax_data(addr) unless @ie.url.include? 'taxdata/details'
 
       doc = @ie.xmlparser_document_object
 
