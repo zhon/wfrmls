@@ -12,7 +12,7 @@ module Wfrmls #:nodoc:
 
       def initialize(*args)
         argv = args.flatten
-        
+
         opt = OptionParser.new do |opt|
           opt.banner = "Usage: #{script_name} [options] <address>"
           opt.version = version
@@ -25,23 +25,31 @@ module Wfrmls #:nodoc:
             @comp = true
           end
 
+          opt.on("-o", "Check opposition's sale") do
+            @opposition = true
+          end
+
           opt.on("-h", "-?", "--help", "Show this message") do
             puts opt
             exit
           end
-      
+
           opt.on("-v", "--version", "Show #{script_name}'s version (#{version})") do
-            puts version
+           puts version
             exit
-          end  
+          end
         end
-        
+
         opt.parse!(argv)
         @address = argv.dup.join(' ')
-      end 
+      end
 
       def comp?
         @comp
+      end
+
+      def opposition?
+        @opposition
       end
 
     private

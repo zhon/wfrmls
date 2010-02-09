@@ -12,10 +12,7 @@ module Wfrmls
     end
 
     def lookup_address(addr)
-      goto_search_page
-      residential_full_search
-      status
-      address(addr)
+      find_address_on_search_page(addr)
 
       if search_results_availible?
         show_full_listings
@@ -24,10 +21,14 @@ module Wfrmls
       end
     end
 
+    def lookup_opposition(addr)
+      find_address_on_search_page(addr)
+      show_listings
+    end
+
     def comp(addr, house_details = collect_property_details(addr))
       goto_search_page
-
-      residential_full_search
+      historical_data
       status
       city(addr.city)
 
@@ -132,18 +133,30 @@ private
       end
     end
 
-    def residential_full_search
+    def historical_data
       @ie.radio(:id, 'historical_data_yes').set
+    end
+
+    def find_address_on_search_page(addr)
+      goto_search_page
+      historical_data
+      status
+      address(addr)
     end
 
     def search_results_availible?
       result_count = @ie.span(:id, 'action_search_count').text.to_i > 0
     end
 
-    def show_full_listings
-      return unless search_results_availible?
+    def show_listings
+      return false unless search_results_availible?
       @ie.button(:id, 'SEARCH_button').click
       sleep_until { @ie.checkbox(:id, 'ListingController').exists? }
+      true
+    end
+
+    def show_full_listings
+      return unless show_listings
       @ie.checkbox(:id, 'ListingController').click
       @ie.select_list(:id, 'report-selector').set('Full Report')
     end
