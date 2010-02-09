@@ -11,27 +11,8 @@ module Wfrmls
       @ie = ie
     end
 
-    def login
-      @ie.goto 'http://www.utahrealestate.com/auth/login/login_redirect//force_redirect/1'
-      begin
-        @ie.text_field(:id, 'login').set @username
-        @ie.text_field(:id, 'pass').set @password
-        @ie.button(:id, 'submit_button').click
-
-        sleep_until { @ie.url == 'http://www.utahrealestate.com/' }
-      rescue
-        # we are already logged in
-      end
-    end
-
-    def residential_full_search
-      @ie.radio(:id, 'historical_data_yes').set
-    end
-
     def lookup_address(addr)
-      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
-      clear_search
-      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
+      goto_search_page
       residential_full_search
       status
       address(addr)
@@ -43,24 +24,8 @@ module Wfrmls
       end
     end
 
-    def search_results_availible?
-      result_count = @ie.span(:id, 'action_search_count').text.to_i > 0
-    end
-
-    def show_full_listings
-      return unless search_results_availible?
-      @ie.button(:id, 'SEARCH_button').click
-      sleep_until { @ie.checkbox(:id, 'ListingController').exists? }
-      @ie.checkbox(:id, 'ListingController').click
-      @ie.select_list(:id, 'report-selector').set('Full Report')
-    end
-
     def comp(addr, house_details = collect_property_details(addr))
-      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
-
-      clear_search
-
-      goto 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
+      goto_search_page
 
       residential_full_search
       status
@@ -80,89 +45,6 @@ module Wfrmls
       }
 
       show_full_listings
-    end
-
-    def clear_search
-      @ie.button(:id,'CLEAR_button').click
-      sleep_until(3) { @ie.dd(:id, 'left_search_criteria').text !~ /City/ }
-    end
-
-    def status
-      settings = ['Active', 'Sold', 'Under Contract', 'Expired']
-      @ie.div(:id, 'status1Container_clear_button').click
-      tf = @ie.text_field(:id, 'status1Container_input')
-      settings.each do |item|
-        tf.set(item)
-      end
-    end
-
-    def city(name)
-      # clear the city field
-      if not @ie.hidden(:id, 'city').value.empty?
-        @ie.div(:id, 'city1Container_clear_button').click
-        sleep_until { @ie.hidden(:id, 'city').value.empty? }
-        @ie.focus
-      end
-
-      @ie.text_field(:id, 'city1Container_input').set( name + ',' )
-      @ie.focus
-
-      sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'City is' }
-    end
-
-    def address(addr)
-      @ie.text_field(:id, 'street').set addr.street
-      @ie.text_field(:id, 'housenum').set addr.number
-      city(addr.city)
-    end
-
-    def sleep_until max=10, &block
-      count = 0
-      until yield block
-        sleep 1
-        count += 1
-        return if count > max
-      end
-    end
-
-    def show_tax_data(addr)
-      goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
-
-      rows = find_tax_data_rows_by_house_and_street(addr)
-
-      case rows.size
-      when 0
-        puts "#{addr} not found in tax data"
-      when 1
-        click_link rows[0]
-      else
-        puts 'Possible matches:'
-        rows.each do |item|
-          puts item.cell(:class, 'last-col').text
-        end
-      end
-    end
-
-    def click_link(item)
-      item.link(:index, 1).click
-    end
-
-    def find_tax_data_rows_by_house_and_street(addr)
-      rows = []
-      @ie.table(:class, 'tax-data').rows.to_a[1..-1].each do |row|
-        if row.cell(:class, 'last-col').text.include? addr.street.upcase
-          rows << row
-        end
-      end
-      rows
-    end
-
-    def goto(url)
-      @ie.goto url
-      if @ie.link(:id, 'login_anchor').exists?
-        login
-        @ie.goto url
-      end
     end
 
     def collect_property_details(addr)
@@ -216,6 +98,126 @@ module Wfrmls
       end
 
       details
+    end
+
+    def show_tax_data(addr)
+      goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
+
+      rows = find_tax_data_rows_by_house_and_street(addr)
+
+      case rows.size
+      when 0
+        puts "#{addr} not found in tax data"
+      when 1
+        click_link rows[0]
+      else
+        puts 'Possible matches:'
+        rows.each do |item|
+          puts item.cell(:class, 'last-col').text
+        end
+      end
+    end
+
+private
+    def login
+      @ie.goto 'http://www.utahrealestate.com/auth/login/login_redirect//force_redirect/1'
+      begin
+        @ie.text_field(:id, 'login').set @username
+        @ie.text_field(:id, 'pass').set @password
+        @ie.button(:id, 'submit_button').click
+
+        sleep_until { @ie.url == 'http://www.utahrealestate.com/' }
+      rescue
+        # we are already logged in
+      end
+    end
+
+    def residential_full_search
+      @ie.radio(:id, 'historical_data_yes').set
+    end
+
+    def search_results_availible?
+      result_count = @ie.span(:id, 'action_search_count').text.to_i > 0
+    end
+
+    def show_full_listings
+      return unless search_results_availible?
+      @ie.button(:id, 'SEARCH_button').click
+      sleep_until { @ie.checkbox(:id, 'ListingController').exists? }
+      @ie.checkbox(:id, 'ListingController').click
+      @ie.select_list(:id, 'report-selector').set('Full Report')
+    end
+
+    def goto_search_page
+      url = 'http://www.utahrealestate.com/search/form/type/1/name/full?advanced_search=1'
+      goto url
+      clear_search
+      goto url
+    end
+
+    def clear_search
+      @ie.button(:id,'CLEAR_button').click
+      sleep_until(3) { @ie.dd(:id, 'left_search_criteria').text !~ /City/ }
+    end
+
+    def status
+      settings = ['Active', 'Sold', 'Under Contract', 'Expired']
+      @ie.div(:id, 'status1Container_clear_button').click
+      tf = @ie.text_field(:id, 'status1Container_input')
+      settings.each do |item|
+        tf.set(item)
+      end
+    end
+
+    def city(name)
+      # clear the city field
+      if not @ie.hidden(:id, 'city').value.empty?
+        @ie.div(:id, 'city1Container_clear_button').click
+        sleep_until { @ie.hidden(:id, 'city').value.empty? }
+        @ie.focus
+      end
+
+      @ie.text_field(:id, 'city1Container_input').set( name + ',' )
+      @ie.focus
+
+      sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'City is' }
+    end
+
+    def address(addr)
+      @ie.text_field(:id, 'street').set addr.street
+      @ie.text_field(:id, 'housenum').set addr.number
+      city(addr.city)
+    end
+
+    def sleep_until max=10, &block
+      count = 0
+      until yield block
+        sleep 1
+        count += 1
+        return if count > max
+      end
+    end
+
+    def click_link(item)
+      item.link(:index, 1).click
+    end
+
+    def find_tax_data_rows_by_house_and_street(addr)
+      rows = []
+      @ie.table(:class, 'tax-data').rows.to_a[1..-1].each do |row|
+        if row.cell(:class, 'last-col').text.include? addr.street.upcase
+          rows << row
+        end
+      end
+      rows
+    end
+
+    def goto(url)
+      @ie.goto url
+      if @ie.link(:id, 'login_anchor').exists?
+        login
+        @ie.goto url
+      end
     end
 
     def nbsp2sp(s)
