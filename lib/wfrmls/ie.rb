@@ -31,6 +31,7 @@ module Wfrmls
       historical_data
       status
       city(addr.city)
+      short_sale(false)
 
       @ie.text_field(:id, 'days_back_status').set('120')
 
@@ -157,7 +158,18 @@ private
       goto_search_page
       historical_data
       status
+      short_sale
       address(addr)
+    end
+
+    def short_sale(includes=true)
+      if includes
+        @ie.radio(:id, 'o_shortsale_4').click
+      else
+        @ie.radio(:id, 'o_shortsale_8').click
+      end
+      @ie.checkbox(:id, 'shortsale_2').click
+      @ie.checkbox(:id, 'shortsale_4').click
     end
 
     def search_results_availible?
