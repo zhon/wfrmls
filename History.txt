@@ -1,9 +1,20 @@
+=== 0.3.2 / 2010-02-25
+
+* Short sale is included except for comps
+* Tax data is finding fewer false positives
+* Added CLI option -o  # no tax data
+* Clear search before starting new address search
+* Show house details when comping
+* No address will take you to search page
+* Show Parking type and size
+
+=== 0.3.1 / 2010-01-27
+
+* Added ability to comp
+
 === 0.3.0 / 2010-01-22
 
 * Login to site
 * Search for property
 * Show results in browser
 
-=== 0.3.1 / 2010-01-27
-
-* Added ability to comp
