@@ -158,7 +158,6 @@ private
       goto_search_page
       historical_data
       status
-      short_sale
       address(addr)
     end
 
