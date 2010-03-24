@@ -223,9 +223,14 @@ private
       sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'City is' }
     end
 
+    def street(street)
+      @ie.text_field(:id, 'street').set street
+      sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'Street' }
+    end
+
     def address(addr)
-      @ie.text_field(:id, 'street').set addr.street
       @ie.text_field(:id, 'housenum').set addr.number
+      street(addr.street)
       city(addr.city)
     end
 
