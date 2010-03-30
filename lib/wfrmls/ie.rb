@@ -113,10 +113,6 @@ module Wfrmls
       when 1
         click_link rows[0]
       else
-        puts 'Possible matches:'
-        rows.each do |item|
-          puts item.cell(:class, 'last-col').text
-        end
         regex = /\b#{addr.prefix}\b.*\b#{addr.suffix}/
         rows = rows.inject([]) do |c, item|
           c << item if regex.match item.cell(:class, 'last-col').text
