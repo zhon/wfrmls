@@ -1,3 +1,9 @@
+=== 0.3.3 / 2010-08-08
+
+* Now using (30 sec) manual authentacation
+* No longer show message about duplicate houses
+* No longer restrict searches to short sales
+
 === 0.3.2 / 2010-02-25
 
 * Short sale is included except for comps

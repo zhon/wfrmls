@@ -1,4 +1,4 @@
-require 'sleeper'
+require 'wfrmls/sleeper'
 
 class Authenticator
   def initialize(ie)

@@ -13,7 +13,7 @@ class WfrmlsTest < Test::Unit::TestCase
       item.should_receive(:number).returns('1')
       item.should_receive(:to_s).and_return('address')
     end
-    ie = Wfrmls::IE.new(ie, nil, nil)
+    ie = Wfrmls::IE.new(ie, nil)
     flexmock(ie) do |m| 
       m.should_receive(:goto)
       m.should_receive(:find_tax_data_rows_by_house_and_street).

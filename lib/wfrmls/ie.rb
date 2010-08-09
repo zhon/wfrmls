@@ -1,14 +1,16 @@
 require 'watir'
 require 'street_address'
+require 'wfrmls/sleeper'
+require 'wfrmls/authenticator'
 
 
 module Wfrmls
   class IE
+    include Sleeper
 
-    def initialize(ie, username, password)
-      @username = username
-      @password = password
+    def initialize(ie, auth)
       @ie = ie
+      @auth = auth
     end
 
     def lookup_address(addr)
@@ -103,7 +105,6 @@ module Wfrmls
     end
 
     def show_tax_data(addr)
-      goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
 
       rows = find_tax_data_rows_by_house_and_street(addr)
 
@@ -133,19 +134,6 @@ module Wfrmls
     end
 
 private
-    def login
-      @ie.goto 'http://www.utahrealestate.com/auth/login/login_redirect//force_redirect/1'
-      begin
-        @ie.text_field(:id, 'login').set @username
-        @ie.text_field(:id, 'pass').set @password
-        @ie.button(:id, 'submit_button').click
-
-        sleep_until { @ie.url == 'http://www.utahrealestate.com/' }
-      rescue
-        # we are already logged in
-      end
-    end
-
     def historical_data
       @ie.radio(:id, 'historical_data_yes').set
     end
@@ -230,23 +218,17 @@ private
       city(addr.city)
     end
 
-    def sleep_until max=10, &block
-      count = 0
-      until yield block
-        sleep 1
-        count += 1
-        return if count > max
-      end
-    end
-
     def click_link(item)
       item.link(:index, 1).click
     end
 
     def find_tax_data_rows_by_house_and_street(addr)
+      goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
+
+      reg = Regexp.new("\\b#{addr.street}\\b", Regexp::IGNORECASE)
       rows = []
       @ie.table(:class, 'tax-data').rows.to_a[1..-1].each do |row|
-        if row.cell(:class, 'last-col').text.include? addr.street.upcase
+        if reg.match row.cell(:class, 'last-col').text
           rows << row
         end
       end
@@ -255,8 +237,8 @@ private
 
     def goto(url)
       @ie.goto url
-      if @ie.link(:id, 'login_anchor').exists?
-        login
+      unless @auth.logged_in?
+        @auth.login
         @ie.goto url
       end
     end

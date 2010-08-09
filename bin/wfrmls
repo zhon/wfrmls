@@ -20,7 +20,7 @@ username = config['username']
 password = config['password']
 
 ie = Watir::Browser.new
-mls = Wfrmls::IE.new(ie, username, password)
+mls = Wfrmls::IE.new(ie, ManualAuthenticator.new(ie))
 
 if options.address.empty?
   begin
