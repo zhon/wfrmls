@@ -2,6 +2,8 @@
 
 CONFIG_FILE_NAME = File.expand_path('~/wfrmls_config.yml')
 
+require 'watir'
+require 'watir/ie'
 require 'wfrmls/ie'
 require 'wfrmls/cli/options'
 
@@ -18,6 +20,8 @@ end
 
 username = config['username']
 password = config['password']
+
+Watir::Browser.default = 'ie'
 
 ie = Watir::Browser.new
 mls = Wfrmls::IE.new(ie, ManualAuthenticator.new(ie))

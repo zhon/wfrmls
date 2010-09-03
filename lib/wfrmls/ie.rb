@@ -1,4 +1,5 @@
-require 'watir'
+# encoding: UTF-8
+
 require 'street_address'
 require 'wfrmls/sleeper'
 require 'wfrmls/authenticator'
