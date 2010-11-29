@@ -5,7 +5,11 @@ README.txt
 Rakefile
 bin/wfrmls
 lib/wfrmls.rb
+lib/wfrmls/authenticator.rb
 lib/wfrmls/cli/options.rb
 lib/wfrmls/ie.rb
+lib/wfrmls/sleeper.rb
 test/wfrmls_test.rb
-
+test/ie_test.rb
+test/manual_authenticator_test.rb
+test/wfrmls_test.rb

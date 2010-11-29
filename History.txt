@@ -1,4 +1,4 @@
-=== 0.3.3 / 2010-08-08
+=== 0.3.4 / 2010-11-28
 
 * Now using (30 sec) manual authentacation
 * No longer show message about duplicate houses
