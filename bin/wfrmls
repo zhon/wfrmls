@@ -9,18 +9,6 @@ require 'wfrmls/cli/options'
 
 options = Wfrmls::CLI::Options.parse! ARGV
 
-config = nil
-begin
-  config = YAML::load_file(CONFIG_FILE_NAME)
-rescue => e
-  # TODO initialize password
-  #File.open(CONFIG_FILE_NAME, 'w') do |item|
-  #end
-end
-
-username = config['username']
-password = config['password']
-
 Watir::Browser.default = 'ie'
 
 ie = Watir::Browser.new
