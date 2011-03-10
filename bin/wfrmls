@@ -29,15 +29,14 @@ end
 
 puts addr
 
-if options.comp?
-  details = mls.collect_property_details(addr)
-  puts details.to_yaml
-  mls.comp(addr, details)
-elsif options.opposition?
+if options.opposition?
   mls.lookup_opposition(addr)
 else
-  puts mls.collect_property_details(addr).to_yaml
-  mls.lookup_address(addr)
+  details = mls.collect_property_details(addr)
+  puts details.to_yaml
+  if options.comp?
+    mls.comp(addr, details)
+  else
+    mls.lookup_address(addr)
+  end
 end
-
-
