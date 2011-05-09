@@ -9,10 +9,24 @@ require 'wfrmls/cli/options'
 
 options = Wfrmls::CLI::Options.parse! ARGV
 
-Watir::Browser.default = 'ie'
+config = nil
+begin
+  config = YAML::load_file(CONFIG_FILE_NAME)
+rescue => e
+  # TODO initialize password
+  #File.open(CONFIG_FILE_NAME, 'w') do |item|
+  #end
+end
 
 ie = Watir::Browser.new
-mls = Wfrmls::IE.new(ie, ManualAuthenticator.new(ie))
+
+auth = config ?
+  Wfrmls::AutomaticAuthenticator.new(ie, config['username'], config['password']) :
+  Wfrmls::ManualAuthenticator.new(ie)
+
+Watir::Browser.default = 'ie'
+
+mls = Wfrmls::IE.new(ie, auth)
 
 if options.address.empty?
   begin

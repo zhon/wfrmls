@@ -1,5 +1,6 @@
 require 'wfrmls/sleeper'
 
+module Wfrmls
 class Authenticator
   def initialize(ie)
     @ie = ie
@@ -35,8 +36,6 @@ class AutomaticAuthenticator < Authenticator
 
   def login
     @ie.goto 'http://www.utahrealestate.com/auth/login/login_redirect//force_redirect/1'
-    sleep 5
-    puts @ie.html
     begin
       @ie.text_field(:id, 'login').set @username
       @ie.text_field(:id, 'pass').set @password
@@ -47,4 +46,5 @@ class AutomaticAuthenticator < Authenticator
       # we are already logged in
     end
   end
+end
 end
