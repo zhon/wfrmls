@@ -170,6 +170,7 @@ private
     def show_full_listings
       return unless show_listings
       @ie.checkbox(:id, 'ListingController').click
+      sleep 1
       @ie.select_list(:id, 'report-selector').set('Full Report')
     end
 
