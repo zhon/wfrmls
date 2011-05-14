@@ -3,6 +3,7 @@
 require 'street_address'
 require 'wfrmls/sleeper'
 require 'wfrmls/authenticator'
+require 'wfrmls/citycountymap'
 
 
 module Wfrmls
@@ -168,7 +169,7 @@ private
     end
 
     def show_full_listings
-      return unless show_listings
+      show_listings || return
       @ie.checkbox(:id, 'ListingController').click
       sleep 1
       @ie.select_list(:id, 'report-selector').set('Full Report')
@@ -225,7 +226,12 @@ private
     end
 
     def find_tax_data_rows_by_house_and_street(addr)
-      goto "http://www.utahrealestate.com/taxdata/index?county%5B%5D=2&county%5B%5D=8&searchtype=house&searchbox=#{addr.number}"
+      goto "http://www.utahrealestate.com/taxdata/index?searchtype=house&searchbox=#{addr.number}"
+
+      # davis county is checked by default
+      @ie.checkbox(:title, 'Davis').click
+      @ie.checkbox(:title, CityToCounty[addr.city]).click
+      @ie.button(:id, 'SEARCH_button').click
 
       reg = Regexp.new("\\b#{addr.street}\\b", Regexp::IGNORECASE)
       rows = []
