@@ -8,16 +8,16 @@ require 'watir'
 require 'watir/ie'
 require 'wfrmls/ie'
 
-Settings.use :define, :commandline
+Settings.use :define, :commandline, :commands
 
-Settings.define :comp, description: "Find comparisons for address.",
-  flag: :c, type: :boolean, default: false
-Settings.define :output, description: "Store details in FILE for address.",
+Settings.define_command :comp,      description: "Find comparisons for ADDRESS."
+Settings.define_command :overview,  description: "Show overview for ADDRESS."
+Settings.define_command :details,   description: "Show details for ADDRESS."
+
+Settings.define :output, description: "Store details in FILE.",
   flag: :o, type: String, default: "last.yml"
-Settings.define :input, description: "Use details from stored FILE.",
+Settings.define :input, description: "Use details from FILE.",
   flag: :i, type: String, default: "last.yml"
-Settings.define :opposition, description: "Show overview of address.",
-  flag: :p, type: :boolean, default: false
 
 Settings.read CONFIG_FILE_NAME
 
@@ -54,12 +54,12 @@ end
 
 puts addr
 
-if Settings.opposition
+if Settings.command_name == :overview
   mls.lookup_opposition(addr)
 else
   details = mls.collect_property_details(addr)
   puts details.to_yaml
-  if Settings.comp
+  if Settings.command_name == :comp
     mls.comp(addr, details)
   else
     mls.lookup_address(addr)
