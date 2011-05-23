@@ -84,8 +84,11 @@ module Wfrmls
           nbsp2sp(item.parent.search('td').text) =~ /Final Value: (\$[0-9,]+)/
           details[:tax_value] = $1
         when /GENERAL INFO:/
-          nbsp2sp(item.parent.search('td').text) =~ /Yr Built: ([0-9]+)/
+          data = nbsp2sp(item.parent.search('td').text)
+          data =~ /Yr Built: ([0-9]+)/
           details[:year_built] = $1.to_i
+          data =~ /Bldg Style: (.*?) \xE2\x80\xA2/
+          details[:type] = $1.strip
         when /AREA INFO:/
           house_size = 0
           data = nbsp2sp(item.parent.search('td').text)
