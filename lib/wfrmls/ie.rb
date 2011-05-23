@@ -225,13 +225,17 @@ private
       item.link(:index, 1).click
     end
 
-    def find_tax_data_rows_by_house_and_street(addr)
+    def select_county(addr)
       goto "http://www.utahrealestate.com/taxdata/index?searchtype=house&searchbox=#{addr.number}"
 
-      # davis county is checked by default
+      # uncheck davis county (it is checked by default)
       @ie.checkbox(:title, 'Davis').click
       @ie.checkbox(:title, CityToCounty[addr.city]).click
       @ie.button(:id, 'SEARCH_button').click
+    end
+
+    def find_tax_data_rows_by_house_and_street(addr)
+      select_county(addr)
 
       reg = Regexp.new("\\b#{addr.street}\\b", Regexp::IGNORECASE)
       rows = []
