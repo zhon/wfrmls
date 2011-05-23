@@ -103,6 +103,16 @@ module Wfrmls
           details[:exterior][:wall] = $1
           data =~ /Masonry Trim: (\w+)/
           details[:exterior][:masonry_trim] = $1
+        when /ROOM INFO:/
+          details[:rooms] ||= {}
+          data = nbsp2sp(item.parent.search('td').text)
+          data =~ /Total Rooms: (\d+)/
+          details[:rooms][:total] = $1
+          data =~ /Full Baths: (\d+)/
+          br = $1.to_i
+          data =~ /1\/2 Baths: (\d+)/
+          br += $1.to_i
+          details[:rooms][:baths] = br
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
           data =~ /(.*): ([0-9]+)/
