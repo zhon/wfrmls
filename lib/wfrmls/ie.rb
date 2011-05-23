@@ -118,11 +118,10 @@ module Wfrmls
           details[:rooms][:baths] = br
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
-          data =~ /(.*): ([0-9]+)/
           details[:parking] = nil
-          if $1
-            details[:parking] = {}
-            details[:parking][$1] = $2.to_i
+          data.scan(/([\w -]*): ([0-9]+)/) do |x,y|
+            details[:parking] ||= {}
+            details[:parking][x.strip] = y.to_i
           end
         end
       end
