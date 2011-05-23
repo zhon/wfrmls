@@ -5,6 +5,17 @@ require 'wfrmls/sleeper'
 require 'wfrmls/authenticator'
 require 'wfrmls/citycountymap'
 
+require 'configliere'
+
+Settings.use :define
+Settings.define :days_back, description: "Compare NUMBER of days back.",
+  type: :Fixnum, default: 120
+
+# TODO house_size_difference
+# surrounding years
+# include short sale?
+# status 'Active', 'Sold', 'Under Contract', 'Expired'
+
 
 module Wfrmls
   class IE
@@ -37,7 +48,7 @@ module Wfrmls
       city(addr.city)
       short_sale(false)
 
-      @ie.text_field(:id, 'days_back_status').set('120')
+      @ie.text_field(:id, 'days_back_status').set(Settings.days_back.to_s)
 
 
       @ie.text_field(:name,'tot_sqf1').set((house_details[:house_size]-200).to_s)
