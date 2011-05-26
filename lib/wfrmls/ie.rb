@@ -110,7 +110,9 @@ module Wfrmls
           details[:rooms] ||= {}
           data = nbsp2sp(item.parent.search('td').text)
           data =~ /Total Rooms: (\d+)/
-          details[:rooms][:total] = $1
+          details[:rooms][:total] = $1.to_i
+          data =~ /Bedrooms: (\d+)/
+          details[:rooms][:bedrooms] = $1.to_i
           data =~ /Full Baths: (\d+)/
           br = $1.to_i
           data =~ /1\/2 Baths: (\d+)/
