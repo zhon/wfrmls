@@ -115,6 +115,8 @@ module Wfrmls
           br = $1.to_i
           data =~ /1\/2 Baths: (\d+)/
           br += $1.to_i
+          data =~ /3\/4 Baths: (\d+)/
+          br += $1.to_i
           details[:rooms][:baths] = br
         when /CARPORT & GARAGE INFO:/
           data = nbsp2sp(item.parent.search('td').text)
