@@ -60,7 +60,7 @@ else
   details = mls.collect_property_details(addr)
   puts details.to_yaml
   if Settings.command_name == :comp
-    mls.comp(addr, details)
+    mls.comp(addr, details) unless details.empty?
   else
     mls.lookup_address(addr)
   end
