@@ -1,9 +1,18 @@
 require 'wfrmls/sleeper'
+require 'configliere'
 
 module Wfrmls
-  class Authenticator
+  module Authenticator
     def initialize(ie)
       @ie = ie
+    end
+
+    def goto(url)
+      @ie.goto url
+      unless logged_in?
+        login
+        @ie.goto url
+      end
     end
 
     def logged_in?
@@ -11,7 +20,8 @@ module Wfrmls
     end
   end
 
-  class ManualAuthenticator < Authenticator
+  module ManualAuthenticator
+    include Authenticator
     include Sleeper
 
     def login
@@ -25,7 +35,8 @@ module Wfrmls
     end
   end
 
-  class AutomaticAuthenticator < Authenticator
+  module AutomaticAuthenticator
+    include Authenticator
     include Sleeper
 
     def initialize(ie, username, password)
@@ -37,8 +48,8 @@ module Wfrmls
     def login
       @ie.goto 'http://www.utahrealestate.com/auth/login/login_redirect//force_redirect/1'
       begin
-        @ie.text_field(:id, 'login').set @username
-        @ie.text_field(:id, 'pass').set @password
+        @ie.text_field(:id, 'login').set Settings[:username]
+        @ie.text_field(:id, 'pass').set Settings[:password]
         @ie.button(:id, 'submit_button').click
 
         sleep_until { @ie.url == 'http://www.utahrealestate.com/' }

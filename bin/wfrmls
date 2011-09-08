@@ -6,7 +6,8 @@ CONFIG_FILE_NAME = File.expand_path('~/wfrmls_config.yml')
 require 'configliere'
 require 'watir'
 require 'watir/ie'
-require 'wfrmls/ie'
+require 'wfrmls/residential_search'
+require 'wfrmls/tax_data_search'
 
 Settings.use :define, :commandline, :commands
 
@@ -21,7 +22,9 @@ Settings.define :input, description: "Use details from FILE.",
   flag: :i, default: "last.yml"
 
 Settings.define :status, description: "Sale status.",
-  type: Array, default: ['Active', 'Under Contract', 'Expired', 'Sold']
+  type: Array, default: ['Active', 'Sold', 'Under Contract', 'Expired']
+Settings.define :days_back, description: "Compare NUMBER of days back.",
+  type: Integer, default: 120
 
 Settings.read CONFIG_FILE_NAME
 
@@ -29,23 +32,27 @@ Settings.resolve!
 
 # TODO save username and password into config file if new or not there
 
-username = Settings[:username]
-password = Settings[:password]
 address = Settings.rest.join(' ')
 
 Watir::Browser.default = 'ie'
 ie = Watir::Browser.new
 
+def lookup_address(addr, search,  td_search)
+  search.find_address_on_search_page(addr)
 
-auth = username && password ?
-  Wfrmls::AutomaticAuthenticator.new(ie, username, password) :
-  Wfrmls::ManualAuthenticator.new(ie)
+  if search.results_availible?
+    search.show_full_listings
+  else
+    td_search.show_tax_data(addr)
+  end
+end
 
-mls = Wfrmls::IE.new(ie, auth)
+rsearch = Wfrmls::ResidentialSearch.new(ie)
+tdsearch = Wfrmls::TaxDataSearch.new(ie)
 
 if address.empty?
   begin
-    mls.lookup_address(nil)
+    rsearch.find_address_on_search_page(nil)
   rescue
     exit
   end
@@ -59,13 +66,13 @@ end
 puts addr
 
 if Settings.command_name == :overview
-  mls.lookup_opposition(addr)
+  rsearch.lookup_opposition(addr)
 else
-  details = mls.collect_property_details(addr)
+  details = tdsearch.collect_property_details(addr)
   puts details.to_yaml
   if Settings.command_name == :comp
-    mls.comp(addr, details) unless details.empty?
+    rsearch.comp(addr, details) unless details.empty?
   else
-    mls.lookup_address(addr)
+    lookup_address(addr, rsearch, tdsearch)
   end
 end
