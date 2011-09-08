@@ -9,7 +9,7 @@ require 'configliere'
 
 Settings.use :define
 Settings.define :days_back, description: "Compare NUMBER of days back.",
-  type: :Fixnum, default: 120
+  type: Integer, default: 120
 
 # TODO house_size_difference
 # surrounding years

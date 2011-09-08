@@ -13,17 +13,21 @@ Settings.use :define, :commandline, :commands
 Settings.define_command :comp,      description: "Find comparisons for ADDRESS."
 Settings.define_command :overview,  description: "Show overview for ADDRESS."
 Settings.define_command :details,   description: "Show details for ADDRESS."
+Settings.define_command :reo,       description: "Find bank owned properties."
 
 Settings.define :output, description: "Store details in FILE.",
-  flag: :o, type: String, default: "last.yml"
+  flag: :o, default: "last.yml"
 Settings.define :input, description: "Use details from FILE.",
-  flag: :i, type: String, default: "last.yml"
+  flag: :i, default: "last.yml"
+
+Settings.define :status, description: "Sale status.",
+  type: Array, default: ['Active', 'Under Contract', 'Expired', 'Sold']
 
 Settings.read CONFIG_FILE_NAME
 
 Settings.resolve!
 
-# TODO save username and password into config file if new or not their
+# TODO save username and password into config file if new or not there
 
 username = Settings[:username]
 password = Settings[:password]
