@@ -8,6 +8,7 @@ require 'watir'
 require 'watir/ie'
 require 'wfrmls/residential_search'
 require 'wfrmls/tax_data_search'
+require 'wfrmls/reo'
 
 Settings.use :define, :commandline, :commands
 
@@ -64,6 +65,15 @@ if addr.nil?
 end
 
 puts addr
+
+if Settings.command_name == :reo
+  search = Wfrmls::ResidentialSearch.new(ie, auth)
+  reo = Wfrmls::Reo.new(search)
+
+  reo.find
+
+  exit
+end
 
 if Settings.command_name == :overview
   rsearch.lookup_opposition(addr)
