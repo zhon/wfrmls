@@ -1,3 +1,5 @@
+require 'wfrmls/sleeper'
+require 'wfrmls/authenticator'
 
 module Wfrmls
   class ResidentialSearch # < Wfrmls::IE

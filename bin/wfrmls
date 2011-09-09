@@ -9,6 +9,7 @@ require 'watir/ie'
 require 'wfrmls/residential_search'
 require 'wfrmls/tax_data_search'
 require 'wfrmls/reo'
+require 'street_address'
 
 Settings.use :define, :commandline, :commands
 
@@ -67,7 +68,7 @@ end
 puts addr
 
 if Settings.command_name == :reo
-  search = Wfrmls::ResidentialSearch.new(ie, auth)
+  search = Wfrmls::ResidentialSearch.new(ie)
   reo = Wfrmls::Reo.new(search)
 
   reo.find

@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+require 'wfrmls/citycountymap'
+
 module Wfrmls
   class TaxDataSearch
     include AutomaticAuthenticator
