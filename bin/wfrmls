@@ -40,7 +40,7 @@ Watir::Browser.default = 'ie'
 ie = Watir::Browser.new
 
 def lookup_address(addr, search,  td_search)
-  search.find_address_on_search_page(addr)
+  search.find_address(addr)
 
   if search.results_availible?
     search.show_full_listings
@@ -52,14 +52,6 @@ end
 rsearch = Wfrmls::ResidentialSearch.new(ie)
 tdsearch = Wfrmls::TaxDataSearch.new(ie)
 
-if address.empty?
-  begin
-    rsearch.find_address_on_search_page(nil)
-  rescue
-    exit
-  end
-end
-
 addr = StreetAddress::US.parse(address)
 if addr.nil?
   addr = StreetAddress::US.parse(address+', UT')
@@ -68,12 +60,17 @@ end
 puts addr
 
 if Settings.command_name == :reo
-  search = Wfrmls::ResidentialSearch.new(ie)
-  reo = Wfrmls::Reo.new(search)
-
+  reo = Wfrmls::Reo.new(rsearch)
   reo.find
-
   exit
+end
+
+if address.empty?
+  begin
+    rsearch.find_address(nil)
+  rescue
+    exit
+  end
 end
 
 if Settings.command_name == :overview

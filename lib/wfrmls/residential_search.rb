@@ -17,22 +17,25 @@ module Wfrmls
       city(addr.city)
       short_sale(false)
       house_size(house_details)
-
       days_back
-
-      sleep_until(3) {
-        @ie.dd(:id,'left_search_criteria').text.include? 'Year Built at most'
-      }
-
+      year_built = house_details[:year_built]
+      year_built_range(year_built - 6, year_built + 6)
+      wait_for_search_criteria('Year Built at most')
       show_full_listings
     end
 
+    def wait_for_search_criteria(text)
+      sleep_until(3) {
+        @ie.dd(:id,'left_search_criteria').text.include? text
+      }
+    end
+
     def lookup_opposition(addr)
-      find_address_on_search_page(addr)
+      find_address(addr)
       show_listings
     end
 
-    def find_address_on_search_page(addr)
+    def find_address(addr)
       goto_search_page
       historical_data
       status
@@ -69,7 +72,11 @@ module Wfrmls
     end
 
     def status(args = Settings.status)
-      set_items 'status1Container_clear_button', 'status1Container_input', args
+      set_items args,'status1Container_input','status1Container_bot_close'
+    end
+
+    def property_type(args)
+      set_items args,'proptype1Container_input', 'proptype1Container_bot_close'
     end
 
     def address(addr)
@@ -89,33 +96,18 @@ module Wfrmls
       @ie.text_field(:id, 'city1Container_input').set( name + ',' )
       @ie.focus
 
-      sleep_until {@ie.dd(:id, 'left_search_criteria').text.include? 'City is'}
+      wait_for_search_criteria 'City is'
     end
 
     def street(street)
       @ie.text_field(:id, 'street').set street
-      sleep_until { @ie.dd(:id, 'left_search_criteria').text.include? 'Street' }
+      wait_for_search_criteria 'Street'
     end
 
     def county(args)
-      set_items 'county_code1Container_clear_button',
-        'county_code1Container_input', args
-    end
-
-    private
-
-    def set_items(clear_button, input_field, args)
-      args = Array(args)
-      @ie.div(:id, clear_button).click
-      tf = @ie.text_field(:id, input_field)
-      args.each do |item|
-        tf.set(item)
-      end
-    end
-
-    def clear_search
-      @ie.button(:id,'CLEAR_button').click
-      sleep_until(3) { @ie.dd(:id, 'left_search_criteria').text !~ /City/ }
+      set_items args,
+        'county_code1Container_input',
+        'county_code1Container_bot_close'
     end
 
     def short_sale(includes=true)
@@ -128,6 +120,11 @@ module Wfrmls
       @ie.checkbox(:id, 'shortsale_4').click
     end
 
+    def year_built_range(early, later)
+      @ie.text_field(:name,'yearblt1').set(early.to_s) if early
+      @ie.text_field(:name,'yearblt2').set(later.to_s) if later
+    end
+
     def house_size(house_details)
       @ie.text_field(:name,'tot_sqf1').set((house_details[:house_size]-200).to_s)
       @ie.text_field(:name,'tot_sqf2').set((house_details[:house_size]+200).to_s)
@@ -135,6 +132,25 @@ module Wfrmls
 
     def days_back
       @ie.text_field(:id, 'days_back_status').set(Settings.days_back.to_s)
+    end
+
+    def owner_type_not_owner_agent
+      @ie.radio(:id, 'o_owner_type_2').click
+      @ie.checkbox(:id, 'owner_type_4').click
+    end
+
+    private
+
+    def clear_search
+      @ie.button(:id,'CLEAR_button').click
+      sleep_until(3) { @ie.dd(:id, 'left_search_criteria').text !~ /City/ }
+    end
+
+    def set_items(items, input_id, close_button_id)
+      items = Array(items)
+      tf = @ie.text_field(:id, input_id)
+      tf.set(items.join ',')
+      @ie.link(:id, close_button_id).click
     end
 
   end
