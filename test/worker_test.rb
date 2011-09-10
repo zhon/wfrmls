@@ -30,10 +30,10 @@ module Wfrmls
     end
 
     def test_failed_check_should_enq_until_returning_true
-      create(2)
+      create(4)
       @worker.should_receive(:work)
-      @worker.should_receive(:check_work).and_return(false,true,true)
-      @queue.should_receive(:enq).twice
+      @worker.should_receive(:check_work).times(3).and_return(false,false,true)
+      @queue.should_receive(:enq).times(3)
       @worker.run
       @worker.run
       @worker.run
@@ -43,8 +43,9 @@ module Wfrmls
     def test_failed_check_should_enq_until_retry_check_count_reached
       create(2)
       @worker.should_receive(:work)
-      @worker.should_receive(:check_work).and_return(false,false,false)
-      @queue.should_receive(:enq).twice
+      @worker.should_receive(:check_work).times(2).and_return(false,false)
+      @queue.should_receive(:enq).times(3)
+      @worker.run
       @worker.run
       @worker.run
       @worker.run
@@ -71,16 +72,14 @@ module Wfrmls
 
     class WorkerPartial
       include Worker
-      def initialize(queue, retry_check_count)
-        @worker_queue = queue
-        @worker_retry_check_count = retry_check_count
-      end
     end
 
     def create(retry_check_count = 1)
       @queue = flexmock('queue')
       @queue.should_ignore_missing
       @worker = flexmock WorkerPartial.new(@queue, retry_check_count)
+      @worker.worker_retry_check_count = retry_check_count
+      @worker.worker_queue = @queue
     end
 
   end

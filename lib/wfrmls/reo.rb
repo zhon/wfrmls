@@ -13,11 +13,10 @@ module Wfrmls
       @search.short_sale(false)
       @search.property_type('Single Family')
       @search.owner_type_not_owner_agent
-
       #exclude mobile, Townhouse, condo, twin
       @search.year_built_range(1950, nil)
-      @search.wait_for_search_criteria('Year Built')
-#      @search.show_listings
+      @search.execute_commands
+      @search.show_listings
     end
   end
 end

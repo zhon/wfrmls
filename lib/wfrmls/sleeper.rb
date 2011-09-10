@@ -1,10 +1,11 @@
 module Sleeper
   def sleep_until max=10, &block
     count = 0
-    until yield block
+    until (result = yield block)
       sleep 1
       count += 1
-      return if count > max
+      return result if count > max
     end
+    result
   end
 end

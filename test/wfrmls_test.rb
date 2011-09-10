@@ -1,5 +1,3 @@
-require "wfrmls"
-
 require "test/unit"
 
 class TestWfrmls < Test::Unit::TestCase
