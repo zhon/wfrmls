@@ -51,6 +51,22 @@ module Wfrmls
       @worker.run
     end
 
+    def test_0_retry_check_count_should_never_run_check_work
+      create(0)
+      @worker.should_receive(:work)
+      @worker.should_receive(:check_work).never
+      @worker.run
+      @worker.run
+    end
+
+    def test_0_retry_check_count_should_never_enque
+      create(0)
+      @worker.should_receive(:work)
+      @queue.should_receive(:enq).never
+      @worker.run
+      @worker.run
+    end
+
     private
 
     class WorkerPartial

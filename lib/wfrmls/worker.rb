@@ -8,13 +8,16 @@ module Wfrmls
       when :work
         work
         @worker_state = :check_work
-        @worker_queue.enq self
+        @worker_queue.enq self if 0 < @worker_retry_check_count
       when :check_work
-        unless check_work
-          @worker_queue.enq self
+        if @worker_retry_check_count > 0
+          unless check_work
+            @worker_queue.enq self
+          end
+        else
+          @worker_state = :done
         end
         @worker_retry_check_count =- 1
-        @worker_state = :done if 0 >= @worker_retry_check_count
       when :done
         # TODO if we are really done and here log someting
       end
