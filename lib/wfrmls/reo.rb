@@ -1,3 +1,4 @@
+require 'Wfrmls/settings'
 
 module Wfrmls
   class Reo
@@ -8,7 +9,7 @@ module Wfrmls
     def find
       @search.goto_search_page
       @search.status('Active')
-      @search.county('Davis')
+      @search.county(Settings.county || 'Davis')
       #@search.city('Kaysville')
       @search.short_sale(false)
       @search.property_type('Single Family')

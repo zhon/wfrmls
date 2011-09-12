@@ -1,5 +1,5 @@
 
-CONFIG_FILE_NAME = File.expand_path('~/wfrmls_config.yml')
+CONFIG_FILE_NAME ||= File.expand_path('~/wfrmls_config.yml')
 
 require 'configliere'
 
@@ -19,6 +19,8 @@ Settings.define :status, description: "Sale status.",
   type: Array, default: ['Active', 'Sold', 'Under Contract', 'Expired']
 Settings.define :days_back, description: "Compare NUMBER of days back.",
   type: Integer, default: 120
+Settings.define :county, description: "Select county.",
+  type: Array, default: ['Davis']
 
 Settings.read CONFIG_FILE_NAME
 
