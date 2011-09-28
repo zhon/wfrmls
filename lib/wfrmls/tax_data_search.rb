@@ -131,7 +131,7 @@ module Wfrmls
     end
 
     def click_link(item)
-      item.link(:index, 1).click
+      item.link(:index, 0).click
     end
 
     def nbsp2sp(s)
