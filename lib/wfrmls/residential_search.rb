@@ -95,6 +95,7 @@ module Wfrmls
       house(addr.number)
       street(addr.street)
       city(addr.city)
+      county(CityToCountyMap[addr.city])
     end
 
     def city(name)
@@ -191,8 +192,10 @@ module Wfrmls
 
     def set_items(items, input_id, close_button_id)
       items = Array(items)
+      items.unshift 'X' # hack to get the site to accept all the items
       tf = @ie.text_field(:id, input_id)
       tf.set(items.join ',')
+      puts tf.value
       @ie.link(:id, close_button_id).click
     end
 
