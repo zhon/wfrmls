@@ -21,6 +21,7 @@ Settings.define :days_back, description: "Compare NUMBER of days back.",
   type: Integer, default: 120
 Settings.define :county, description: "Select county.",
   type: Array, default: ['Davis']
+Settings.define :owner, description: "Use OWNER to help find property."
 
 Settings.read CONFIG_FILE_NAME
 

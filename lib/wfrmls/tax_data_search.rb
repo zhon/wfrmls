@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 require 'wfrmls/citycountymap'
+require 'configliere'
 
 module Wfrmls
   class TaxDataSearch
@@ -80,9 +81,7 @@ module Wfrmls
     end
 
     def show_tax_data(addr)
-
       rows = find_tax_data_rows_by_house_and_street(addr)
-
       case rows.size
       when 0
         puts "#{addr} not found in tax data"
@@ -100,11 +99,28 @@ module Wfrmls
         when 1
           click_link rows[0]
         else
-          puts 'Possible matches:'
-          rows.each do |item|
-            puts item.cell(:class, 'last-col').text
+          if owner = Settings.owner
+            owner.upcase!
+            found = false
+            rows.each do |item|
+              if item.cell(:index, 2).text.include? owner
+                click_link rows[0]
+                found = true
+                break
+              end
+            end
+            mutiple_match_message(rows) unless found
+          else
+            mutiple_match_message(rows)
           end
         end
+      end
+    end
+
+    def mutiple_match_message(rows)
+      puts 'Possible matches:'
+      rows.each do |item|
+        puts item.cell(:class, 'last-col').text
       end
     end
 
