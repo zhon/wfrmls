@@ -1,14 +1,12 @@
-# -*- ruby -*-
+require 'bundler/gem_tasks'
 
-require 'rubygems'
-require 'hoe'
+task :default => [:test]
 
-Hoe.spec 'wfrmls' do
-  developer('zhon', 'zhon@xputah.com')
-
-  # self.rubyforge_name = 'wfrmlsx' # if different than 'wfrmls'
-  self.test_globs = ['test/**/*test.rb']
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/*test.rb'
+  test.verbose = true
 end
-
 
 # vim: syntax=ruby
