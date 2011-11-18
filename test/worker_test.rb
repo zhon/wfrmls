@@ -77,7 +77,7 @@ module Wfrmls
     def create(retry_check_count = 1)
       @queue = flexmock('queue')
       @queue.should_ignore_missing
-      @worker = flexmock WorkerPartial.new(@queue, retry_check_count)
+      @worker = flexmock WorkerPartial.new
       @worker.worker_retry_check_count = retry_check_count
       @worker.worker_queue = @queue
     end

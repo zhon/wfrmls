@@ -142,7 +142,12 @@ module Wfrmls
 
       # uncheck davis county (it is checked by default)
       @ie.checkbox(:title, 'Davis').click
-      @ie.checkbox(:title, CityToCounty[addr.city]).click
+      begin
+        @ie.checkbox(:title, CityToCounty[addr.city]).click
+      rescue => e
+        puts "Invalid city #{addr.city}"
+        puts e.backtrace
+      end
       @ie.button(:id, 'SEARCH_button').click
     end
 
