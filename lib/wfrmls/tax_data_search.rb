@@ -141,7 +141,8 @@ module Wfrmls
       goto "http://www.utahrealestate.com/taxdata/index?searchtype=house&searchbox=#{addr.number}"
 
       # uncheck davis county (it is checked by default)
-      @ie.checkbox(:title, 'Davis').click
+      @ie.checkbox(:title, 'Davis').clear
+      @ie.checkbox(:title, 'Weber').clear
       begin
         @ie.checkbox(:title, CityToCounty[addr.city]).click
       rescue => e
