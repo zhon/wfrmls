@@ -104,7 +104,7 @@ module Wfrmls
             found = false
             rows.each do |item|
               if item.cell(:index, 2).text.include? owner
-                click_link rows[0]
+                click_link item
                 found = true
                 break
               end
