@@ -171,8 +171,12 @@ module Wfrmls
 
     def owner_type_not_owner_agent
       it -> {
-        @ie.radio(:id, 'o_owner_type_2').click
-        @ie.checkbox(:id, 'owner_type_4').click
+        @ie.radio(:id, 'o_owner_type_8').click
+      }
+      it -> {
+        set_items('Owner/Agent', 'owner_type1Container_input', 'owner_type1Container_top_close')
+      } , -> {
+        search_criteria_set? 'Owner Type is not'
       }
     end
 
@@ -195,7 +199,6 @@ module Wfrmls
       items.unshift 'X' # hack to get the site to accept all the items
       tf = @ie.text_field(:id, input_id)
       tf.set(items.join ',')
-      puts tf.value
       @ie.link(:id, close_button_id).click
     end
 
