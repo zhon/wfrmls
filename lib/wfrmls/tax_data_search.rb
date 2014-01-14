@@ -1,7 +1,10 @@
 # encoding: UTF-8
 
 require 'wfrmls/citycountymap'
+require 'wfrmls/authenticator'
 require 'configliere'
+
+require 'nokogiri'
 
 module Wfrmls
   class TaxDataSearch
@@ -13,9 +16,11 @@ module Wfrmls
 
     def collect_property_details(addr)
       show_tax_data(addr) unless @ie.url.include? 'taxdata/details'
+      doc = Nokogiri.parse @ie.html
+      self.class.collect_property_details_from_nokogiri(doc)
+    end
 
-      doc = @ie.xmlparser_document_object
-
+    def self.collect_property_details_from_nokogiri doc
       details = {}
 
       doc.search('tr/th').each do |item|
@@ -156,7 +161,7 @@ module Wfrmls
       item.link(:index, 0).click
     end
 
-    def nbsp2sp(s)
+    def self.nbsp2sp(s)
       s.gsub("\xC2\xA0", ' ')
     end
 

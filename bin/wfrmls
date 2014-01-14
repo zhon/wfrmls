@@ -7,13 +7,11 @@ require 'wfrmls/tax_data_search'
 require 'wfrmls/reo'
 require 'street_address'
 require 'watir'
-require 'watir/ie'
 
 # TODO save username and password into config file if new or not there
 
 address = Settings.rest.join(' ')
 
-Watir::Browser.default = 'ie'
 ie = Watir::Browser.new
 #ie.speed = :zippy
 

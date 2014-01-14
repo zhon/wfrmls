@@ -66,7 +66,7 @@ module Wfrmls
       show_listings || return
       @ie.checkbox(:id, 'ListingController').click
       sleep 1
-      @ie.select_list(:id, 'report-selector').set('Full Report')
+      @ie.select_list(:id, 'report-selector').select('Full Report')
     end
 
     def historical_data
