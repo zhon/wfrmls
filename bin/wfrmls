@@ -13,7 +13,6 @@ require 'watir'
 address = Settings.rest.join(' ')
 
 ie = Watir::Browser.new
-#ie.speed = :zippy
 
 def lookup_address(addr, search,  td_search)
   search.find_address(addr)

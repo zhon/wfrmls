@@ -25,18 +25,6 @@ module Wfrmls
       search
     end
 
-    def test_show_tax_data_with_nothing_found
-      search = create_search([])
-      search.should_receive(:puts).with('address not found in tax data')
-      search.show_tax_data(create_addr)
-    end
-
-    def test_show_tax_data_when_one_item_is_returned
-      search = create_search(['row item'])
-      search.should_receive(:click_link).once
-      search.show_tax_data(create_addr)
-    end
-
     def test_show_tax_data_with_two_items_returned
       skip
       search = create_search(['row item', 'another item'])

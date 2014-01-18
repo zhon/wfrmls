@@ -2,20 +2,20 @@
 
 require 'wfrmls/citycountymap'
 require 'wfrmls/authenticator'
+require 'wfrmls/tax_data/navigator'
 require 'configliere'
 
 require 'nokogiri'
 
 module Wfrmls
   class TaxDataSearch
-    include AutomaticAuthenticator
 
     def initialize(ie)
       @ie = ie
     end
 
     def collect_property_details(addr)
-      show_tax_data(addr) unless @ie.url.include? 'taxdata/details'
+      TaxData::Navigator.new(@ie).go addr
       doc = Nokogiri.parse @ie.html
       self.class.collect_property_details_from_nokogiri(doc)
     end
@@ -81,84 +81,7 @@ module Wfrmls
           end
         end
       end
-
       details
-    end
-
-    def show_tax_data(addr)
-      rows = find_tax_data_rows_by_house_and_street(addr)
-      case rows.size
-      when 0
-        puts "#{addr} not found in tax data"
-      when 1
-        click_link rows[0]
-      else
-        regex = /\b#{addr.prefix}\b.*\b#{addr.suffix}/
-        rows = rows.inject([]) do |c, item|
-          c << item if regex.match item.cell(:class, 'last-col').text
-          c
-        end
-        case rows.size
-        when 0
-          puts "#{addr} not found with #{regex}"
-        when 1
-          click_link rows[0]
-        else
-          if owner = Settings.owner
-            owner.upcase!
-            found = false
-            rows.each do |item|
-              if item.cell(:index, 2).text.include? owner
-                click_link item
-                found = true
-                break
-              end
-            end
-            mutiple_match_message(rows) unless found
-          else
-            mutiple_match_message(rows)
-          end
-        end
-      end
-    end
-
-    def mutiple_match_message(rows)
-      puts 'Possible matches:'
-      rows.each do |item|
-        puts item.cell(:class, 'last-col').text
-      end
-    end
-
-    def find_tax_data_rows_by_house_and_street(addr)
-      select_county(addr)
-
-      reg = Regexp.new("\\b#{addr.street}\\b", Regexp::IGNORECASE)
-      rows = []
-      @ie.table(:class, 'tax-data').rows.to_a[1..-1].each do |row|
-        if reg.match row.cell(:class, 'last-col').text
-          rows << row
-        end
-      end
-      rows
-    end
-
-    def select_county(addr)
-      goto "http://www.utahrealestate.com/taxdata/index?searchtype=house&searchbox=#{addr.number}"
-
-      # uncheck davis county (it is checked by default)
-      @ie.checkbox(:title, 'Davis').clear
-      @ie.checkbox(:title, 'Weber').clear
-      begin
-        @ie.checkbox(:title, CityToCounty[addr.city]).click
-      rescue => e
-        puts "Invalid city #{addr.city}"
-        puts e.backtrace
-      end
-      @ie.button(:id, 'SEARCH_button').click
-    end
-
-    def click_link(item)
-      item.link(:index, 0).click
     end
 
     def self.nbsp2sp(s)
