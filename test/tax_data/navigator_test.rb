@@ -13,53 +13,39 @@ describe Navigator do
     @nav = Navigator.new @browser
   end
 
-  it '' do
-    skip
-    addr = StreetAddressExt.parse '123 N 456 E, Bountiful'
-    page = 'page'
-    browser = stub('browser').page { page }
-    stub(browser).table { stub('table').rows { [] }}
-    #mock(browser).goto("http://www.utahrealestate.com/taxdata/index?county[]=2&searchtype=house&searchbox=123") {
-      #page
-    #}
-    nav = Navigator.new browser
-    mock(nav).goto("http://www.utahrealestate.com/taxdata/index?county[]=2&searchtype=house&searchbox=123")
-    nav.go(addr).must_equal page
-  end
+  describe 'go' do
 
-  describe 'click_correct_link' do
-
-    it 'with no links prints error message' do
-      mock(@nav).puts "'#@address' not found in tax data"
-      @nav.click_correct_link [], @address
-    end
-
-    it 'with one link will click the link' do
-      link = 'row item'
-      mock(@nav).click_link(link)
-      @nav.click_correct_link [ link ], @address
+    it 'with no results prints a message' do
+      addr = StreetAddressExt.parse '123 N 456 E, Bountiful'
+      page = 'page'
+      browser = stub('browser').page { page }
+      stub(browser).table { stub('table').rows { [] }}
+      nav = Navigator.new browser
+      mock(nav).goto("http://www.utahrealestate.com/taxdata/index?county[]=2&searchtype=house&searchbox=123")
+      mock(nav).puts "'123 N 456 E, Bountiful' not found in tax data"
+      nav.go(addr)
     end
 
   end
 
   describe 'reduce_rows' do
 
-    it 'with empty rows returns [false, []]' do
-      @nav.reduce_rows([], stub('address'), [:by_street]).must_equal [false, []]
+    it 'with empty rows returns []' do
+      @nav.reduce_rows([], stub('address'), [:by_street]).must_equal []
     end
 
     it 'with single item returns item' do
-      item = mock('item')
-      mock(@nav).reduce_by.with_any_args { [ item ] }
-      @nav.reduce_rows([item], stub('address'), [:by_street]).must_equal [true, item]
+      item = stub('item')
+      stub(@nav).reduce_by.with_any_args { [ item ] }
+      @nav.reduce_rows([item], stub('address'), [:by_street]).must_equal item
     end
 
     it 'with multiple items and mutiple methods will call itself' do
-      item1 = mock('item1')
-      item2 = mock('item2')
+      item1 = stub('item1')
+      item2 = stub('item2')
       mock(@nav).reduce_by.with_any_args { [ item1, item2 ] }
       mock(@nav).reduce_by.with_any_args { [ item2 ] }
-      @nav.reduce_rows([item1, item2], stub('address'), [:by_street, :by_street ]).must_equal [true, item2]
+      @nav.reduce_rows([item1, item2], stub('address'), [:by_street, :by_street ]).must_equal item2
     end
 
   end
