@@ -15,15 +15,30 @@ describe Navigator do
 
   describe 'go' do
 
+    it 'with one result calls click_link' do
+      link = stub('link')
+      stub(@nav).hit_url
+      stub(@nav).reduce_rows { [ link ] }
+      mock(@nav).click_link link
+      @nav.go(@address)
+    end
+
     it 'with no results prints a message' do
-      addr = StreetAddressExt.parse '123 N 456 E, Bountiful'
-      page = 'page'
-      browser = stub('browser').page { page }
-      stub(browser).table { stub('table').rows { [] }}
-      nav = Navigator.new browser
-      mock(nav).goto("http://www.utahrealestate.com/taxdata/index?county[]=2&searchtype=house&searchbox=123")
-      mock(nav).puts "'123 N 456 E, Bountiful' not found in tax data"
-      nav.go(addr)
+      stub(@nav).hit_url
+      stub(@nav).reduce_rows { [] }
+      mock(@nav).puts "'123 N 456 E, Bountiful' not found in tax data"
+      @nav.go(@address)
+    end
+
+    it 'with too many results prints a message' do
+      link = stub('link')
+      stub(link).cell { stub!.text { 'link' } }
+      stub(@nav).hit_url
+      stub(@nav).reduce_rows { [link, link] }
+      mock(@nav).puts "Possible matches:"
+      mock(@nav).puts "link"
+      mock(@nav).puts "link"
+      @nav.go(@address)
     end
 
   end

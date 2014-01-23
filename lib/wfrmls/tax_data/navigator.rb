@@ -30,11 +30,8 @@ module Wfrmls
       end
 
       def go street_address
-        county_id = COUNTY_ID_MAP[CityToCounty[street_address.city]]
-        goto "http://www.utahrealestate.com/taxdata/index?county[]=#{county_id}&searchtype=house&searchbox=#{street_address.number}"
-        _, *rows = @browser.table(:class, 'tax-data').rows.to_a
         result = reduce_rows(
-          rows,
+          hit_url(street_address),
           street_address,
           [:by_street, :by_prefix_and_suffix]
         )
@@ -42,10 +39,17 @@ module Wfrmls
         when 0
           puts "'#{street_address}' not found in tax data"
         when 1
-          click_link result
+          click_link result.first
         else
-          mutiple_match_message(rows)
+          mutiple_match_message(result)
         end
+      end
+
+      def hit_url street_address
+        county_id = COUNTY_ID_MAP[CityToCounty[street_address.city]]
+        goto "http://www.utahrealestate.com/taxdata/index?county[]=#{county_id}&searchtype=house&searchbox=#{street_address.number}"
+        _, *rows = @browser.table(:class, 'tax-data').rows.to_a
+        rows
       end
 
       def candidate_rows addr
@@ -85,7 +89,7 @@ module Wfrmls
         when 0
           return []
         when 1
-          return rows[0]
+          return [ rows[0] ]
         else
           if funcs.empty?
              rows
