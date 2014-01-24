@@ -1,8 +1,6 @@
 # encoding: UTF-8
 
-require 'wfrmls/citycountymap'
-require 'wfrmls/authenticator'
-require 'wfrmls/tax_data/navigator'
+require 'wfrmls/navigator/tax_data'
 require 'configliere'
 
 require 'nokogiri'
@@ -15,10 +13,10 @@ module Wfrmls
     end
 
     def collect_property_details(addr)
-      TaxData::Navigator.new(@ie).go addr
+      Navigator::TaxData.new(@ie).go addr
       doc = Nokogiri.parse @ie.html
       self.class.collect_property_details_from_nokogiri(doc)
-    rescue TaxData::Error => e
+    rescue Navigator::Error => e
       puts e.message
     end
 

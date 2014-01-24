@@ -1,6 +1,7 @@
 require 'test_helper'
 
 require 'wfrmls/tax_data_search'
+require 'wfrmls/navigator/tax_data'
 
 include Wfrmls
 describe TaxDataSearch do
@@ -16,8 +17,8 @@ describe TaxDataSearch do
 
       it 'prints error' do
         error_msg = "error msg"
-        stub(TaxData::Navigator).new do
-          stub!.go { raise TaxData::Error, error_msg }
+        stub(Navigator::TaxData).new do
+          stub!.go { raise Navigator::Error, error_msg }
         end
         search = TaxDataSearch.new @browser
         mock(search).puts(error_msg)

@@ -2,10 +2,10 @@ require 'wfrmls/citycountymap'
 require 'wfrmls/authenticator'
 
 module Wfrmls
-  module TaxData
+  module Navigator
     class Error < Exception; end
 
-    class Navigator
+    class TaxData
       include AutomaticAuthenticator
 
       COUNTY_ID_MAP = {

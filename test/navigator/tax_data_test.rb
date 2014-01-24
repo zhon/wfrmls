@@ -2,15 +2,15 @@ require 'test_helper'
 
 require 'street_address_ext'
 
-require 'wfrmls/tax_data/navigator'
+require 'wfrmls/navigator/tax_data'
 
-include Wfrmls::TaxData
-describe Navigator do
+include Wfrmls::Navigator
+describe TaxData do
 
   before do
     @browser = stub('browser')
     @address = StreetAddressExt.parse '123 N 456 E, Bountiful'
-    @nav = Navigator.new @browser
+    @nav = TaxData.new @browser
   end
 
   describe 'go' do
