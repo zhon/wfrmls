@@ -1,36 +1,31 @@
+require 'test_helper'
+
 require 'wfrmls/tax_data_search'
 
-require 'test/unit'
-require 'flexmock/test_unit'
+include Wfrmls
+describe TaxDataSearch do
 
-module Wfrmls
-  class TaxdataTest < Test::Unit::TestCase
+  describe 'collect_property_details' do
 
-    def create_addr
-      addr = flexmock('addr') do |item|
-        item.should_receive(:number).returns('1')
-        item.should_receive(:to_s).and_return('address')
-        item.should_ignore_missing
-      end
+    before do
+      @browser = stub!
+      @address = stub!
     end
 
-    def create_search(tax_data_rows)
-      ie = flexmock('ie')
-      search = Wfrmls::TaxDataSearch.new(ie)
-      flexmock(search) do |m|
-        m.should_receive(:goto)
-        m.should_receive(:find_tax_data_rows_by_house_and_street).
-          and_return(tax_data_rows)
-      end
-      search
-    end
+    describe 'fails' do
 
-    def test_show_tax_data_with_two_items_returned
-      skip
-      search = create_search(['row item', 'another item'])
-      search.should_receive(:click_link).once
-      search.show_tax_data(create_addr)
+      it 'prints error' do
+        error_msg = "error msg"
+        stub(TaxData::Navigator).new do
+          stub!.go { raise TaxData::Error, error_msg }
+        end
+        search = TaxDataSearch.new @browser
+        mock(search).puts(error_msg)
+        search.collect_property_details @address
+      end
+
     end
 
   end
+
 end

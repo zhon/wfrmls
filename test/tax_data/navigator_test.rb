@@ -23,22 +23,28 @@ describe Navigator do
       @nav.go(@address)
     end
 
-    it 'with no results prints a message' do
-      stub(@nav).hit_url
-      stub(@nav).reduce_rows { [] }
-      mock(@nav).puts "'123 N 456 E, Bountiful' not found in tax data"
-      @nav.go(@address)
-    end
+    describe 'raises' do
 
-    it 'with too many results prints a message' do
-      link = stub('link')
-      stub(link).cell { stub!.text { 'link' } }
-      stub(@nav).hit_url
-      stub(@nav).reduce_rows { [link, link] }
-      mock(@nav).puts "Possible matches:"
-      mock(@nav).puts "link"
-      mock(@nav).puts "link"
-      @nav.go(@address)
+      it 'with empty results' do
+        stub(@nav).hit_url
+        stub(@nav).reduce_rows { [] }
+        e = assert_raises Error do
+          @nav.go(@address)
+        end
+        e.message.must_equal "'123 N 456 E, Bountiful' not found in tax data"
+      end
+
+      it 'with too many results' do
+        link = stub('link')
+        stub(link).cell { stub!.text { 'link' } }
+        stub(@nav).hit_url
+        stub(@nav).reduce_rows { [link, link] }
+        e = assert_raises Error do
+          @nav.go(@address)
+        end
+        e.message.must_equal "Possible matches:\nlink\nlink"
+      end
+
     end
 
   end

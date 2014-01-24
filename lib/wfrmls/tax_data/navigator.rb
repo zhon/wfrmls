@@ -3,6 +3,8 @@ require 'wfrmls/authenticator'
 
 module Wfrmls
   module TaxData
+    class Error < Exception; end
+
     class Navigator
       include AutomaticAuthenticator
 
@@ -33,15 +35,15 @@ module Wfrmls
         result = reduce_rows(
           hit_url(street_address),
           street_address,
-          [:by_street, :by_prefix_and_suffix]
+          [:by_street, :by_prefix_and_suffix, :by_owner]
         )
         case result.size
         when 0
-          puts "'#{street_address}' not found in tax data"
+          raise Error, "'#{street_address}' not found in tax data"
         when 1
           click_link result.first
         else
-          mutiple_match_message(result)
+          raise Error, mutiple_match_message(result)
         end
       end
 
@@ -104,10 +106,9 @@ module Wfrmls
       end
 
       def mutiple_match_message(rows)
-        puts 'Possible matches:'
-        rows.each do |item|
-          puts item.cell(:class, 'last-col').text
-        end
+        rows.map do |item|
+          item.cell(:class, 'last-col').text
+        end.unshift("Possible matches:").join("\n")
       end
 
     end

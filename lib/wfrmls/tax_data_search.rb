@@ -18,6 +18,8 @@ module Wfrmls
       TaxData::Navigator.new(@ie).go addr
       doc = Nokogiri.parse @ie.html
       self.class.collect_property_details_from_nokogiri(doc)
+    rescue TaxData::Error => e
+      puts e.message
     end
 
     def self.collect_property_details_from_nokogiri doc
