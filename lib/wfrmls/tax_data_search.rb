@@ -15,14 +15,66 @@ module Wfrmls
     def collect_property_details(addr)
       Navigator::TaxData.new(@ie).go addr
       doc = Nokogiri.parse @ie.html
-      self.class.collect_property_details_from_nokogiri(doc)
+      self.class.send(self.class.choose_collection_style(doc), doc)
     rescue Navigator::Error => e
       puts e.message
     end
 
-    def self.collect_property_details_from_nokogiri doc
-      details = {}
+    def self.choose_collection_style doc
+      /(20\d\d)/ =~ doc.css('th.details-head').text
+      if $1.to_i >= 2013
+        :collect_details
+      else
+        :collect_details_old_school
+      end
+    end
 
+    def self.sibling_text element
+      nbsp2sp element.parent.search('td').text.strip
+    end
+
+    def self.collect_details doc
+      details = {}
+      doc.search('tr/th').each do |item|
+        case nbsp2sp(item.text)
+        when /NAME:/
+          details[:owner] = sibling_text item
+        when /ADDRESS:/
+          details[:address] = sibling_text item
+        when /MARKET VALUE:/
+          details[:tax_value] = sibling_text item
+        when /ACCOUNT SPECIFIC INFO \(1\):/
+          sibling_text(item) =~ /Land Gross Acres: ([.0-9]+)/
+          details[:lot_size] = $1
+        when /IMPROVEMENT SPECIFIC INFO \(1\)/
+          text = sibling_text(item) 
+          text =~ /Total SqFt.: ([0-9]+)/
+          details[:house_size] = $1
+          text =~ /Built As Type: (.*?) \xE2\x80\xA2/
+          details[:type] = $1
+          text =~ /Room Count: (\d+)/
+          details[:rooms] ||= {}
+          details[:rooms][:total] = $1.to_i
+          text =~ /Bedroom Count: (\d+)/
+          details[:rooms][:bedrooms] = $1.to_i
+          text =~ /Bath Count: ([\d.])/
+          details[:rooms][:baths] = $1
+          text =~ /Built As Year Built: (\d+)/
+          details[:year_built] = $1.to_i
+
+
+        end
+      end
+      details
+
+          #details[:exterior][:wall] = $1
+          #details[:exterior][:masonry_trim] = $1
+          #details[:parking] = nil
+          #details[:parking][x.strip] = y.to_i
+    end
+
+    def self.collect_details_old_school doc
+      details = {}
       doc.search('tr/th').each do |item|
         case nbsp2sp(item.text)
         when /NAME:/

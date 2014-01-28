@@ -29,4 +29,15 @@ describe TaxDataSearch do
 
   end
 
+  describe 'choose_collection_style' do
+
+    it 'when update < 2013 use old school method' do
+      doc = stub!
+      stub(doc).css.stub!.text { '2012' }
+      f = TaxDataSearch.choose_collection_style doc
+      f.must_equal :collect_details_old_school
+    end
+
+  end
+
 end
