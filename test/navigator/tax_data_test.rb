@@ -45,6 +45,14 @@ describe TaxData do
         e.message.must_equal "Possible matches:\nlink\nlink"
       end
 
+      it 'when address is missing city' do
+
+        @address.city = ''
+        e = assert_raises Error do
+          @nav.go(@address)
+        end
+      end
+
     end
 
   end
@@ -70,7 +78,6 @@ describe TaxData do
     end
 
   end
-
 
 end
 

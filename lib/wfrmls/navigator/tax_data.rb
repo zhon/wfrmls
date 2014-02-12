@@ -48,7 +48,9 @@ module Wfrmls
       end
 
       def hit_url street_address
-        county_id = COUNTY_ID_MAP[CityToCounty[street_address.city]]
+        county_id = 
+          COUNTY_ID_MAP[CityToCounty[street_address.city]] ||
+          raise(Error, "Unable to map '#{street_address}' to county id")
         goto "http://www.utahrealestate.com/taxdata/index?county[]=#{county_id}&searchtype=house&searchbox=#{street_address.number}"
         _, *rows = @browser.table(:class, 'tax-data').rows.to_a
         rows

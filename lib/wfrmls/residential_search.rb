@@ -52,7 +52,8 @@ module Wfrmls
 
     def results_availible?
       execute_commands
-      result_count = @ie.span(:id, 'action_search_count').text.to_i > 0
+      sleep_until { @ie.element(:id, 'action_search_count').exists? }
+      result_count = @ie.element(:id, 'action_search_count').text.to_i > 0
     end
 
     def show_listings
