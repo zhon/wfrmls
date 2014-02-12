@@ -5,7 +5,7 @@ require 'wfrmls/settings'
 require 'wfrmls/residential_search'
 require 'wfrmls/tax_data_search'
 require 'wfrmls/reo'
-require 'street_address'
+require 'street_address_ext'
 require 'watir'
 
 # TODO save username and password into config file if new or not there
@@ -27,10 +27,7 @@ end
 rsearch = Wfrmls::ResidentialSearch.new(ie)
 tdsearch = Wfrmls::TaxDataSearch.new(ie)
 
-addr = StreetAddress::US.parse(address)
-if addr.nil?
-  addr = StreetAddress::US.parse(address+', UT')
-end
+addr = StreetAddressExt.parse(address)
 
 puts addr
 

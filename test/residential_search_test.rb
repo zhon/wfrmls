@@ -11,7 +11,7 @@ module Wfrmls
     def xxxtest_really_hitting_website
 
       search = Wfrmls::ResidentialSearch.new(ie)
-      addr = StreetAddress::US.parse('')
+      addr = StreetAddressExt.parse('')
       search.find_address(addr)
     end
   end

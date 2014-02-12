@@ -905,7 +905,7 @@ module Wfrmls
   }
   class CityToCounty
     def self.[](city)
-      CityToCountyMap[city.titleize]
+      CityToCountyMap[city]
     end
   end
 end
