@@ -4,6 +4,7 @@ require 'wfrmls/navigator/tax_data'
 require 'configliere'
 
 require 'nokogiri'
+require 'strscan'
 
 module Wfrmls
   class TaxDataSearch
@@ -30,7 +31,9 @@ module Wfrmls
     end
 
     def self.sibling_text element
-      nbsp2sp element.parent.search('td').text.strip
+      node = element.parent.search('td')
+      node.search('br').each { |br| br.replace("\n") }
+      nbsp2sp node.text
     end
 
     def self.collect_details doc
@@ -38,30 +41,27 @@ module Wfrmls
       doc.search('tr/th').each do |item|
         case nbsp2sp(item.text)
         when /NAME:/
-          details[:owner] = sibling_text item
-        when /ADDRESS:/
-          details[:address] = sibling_text item
+          details[:owner] = sibling_text(item).strip
+        when /PROPERTY ADDRESS:/
+          details[:address] = sibling_text(item).strip
         when /MARKET VALUE:/
-          details[:tax_value] = sibling_text item
+          details[:tax_value] = sibling_text(item).strip
         when /ACCOUNT SPECIFIC INFO \(1\):/
-          sibling_text(item) =~ /Land Gross Acres: ([.0-9]+)/
-          details[:lot_size] = $1
+          tokens = self.tokenize sibling_text(item)
+          details[:lot_size] = tokens['Land Gross Acres']
         when /IMPROVEMENT SPECIFIC INFO \(1\)/
-          text = sibling_text(item) 
-          text =~ /Total SqFt.: ([0-9]+)/
-          details[:house_size] = $1
-          text =~ /Built As Type: (.*?) \xE2\x80\xA2/
-          details[:type] = $1
-          text =~ /Room Count: (\d+)/
+          tokens = self.tokenize sibling_text(item)
+          details[:house_size] =
+            tokens['Total Sq Ft.'].to_i +
+            tokens['Basement Sq Ft.'].to_i
+          details[:type] = tokens['Built As Type']
           details[:rooms] ||= {}
-          details[:rooms][:total] = $1.to_i
-          text =~ /Bedroom Count: (\d+)/
-          details[:rooms][:bedrooms] = $1.to_i
-          text =~ /Bath Count: ([\d.])/
-          details[:rooms][:baths] = $1
-          text =~ /Built As Year Built: (\d+)/
-          details[:year_built] = $1.to_i
-
+          details[:rooms][:total] = tokens['Room Count'].to_i
+          details[:rooms][:bedrooms] = tokens['Bedroom Count'].to_i
+          details[:rooms][:baths] = tokens['Bath Count'].to_i
+          details[:year_built] = tokens['Built As Year Built'].to_i
+        when 'IMPROVEMENT DETAIL (Garage):'
+          details[:parking] = self.tokenize(sibling_text(item))
 
         end
       end
@@ -69,8 +69,20 @@ module Wfrmls
 
           #details[:exterior][:wall] = $1
           #details[:exterior][:masonry_trim] = $1
-          #details[:parking] = nil
-          #details[:parking][x.strip] = y.to_i
+    end
+
+    def self.tokenize text
+      hash = {}
+      ss = StringScanner.new text
+      while ! ss.eos? do
+        ss.scan(/\s+/)
+        key = ss.scan(/(?:(?!:).)+/)
+        ss.scan(/:/)
+        value = (ss.scan(/(:?(?![\u2022\n]).)+/) || '').strip
+        ss.scan(/\u2022|\n/)
+        hash[key] = value
+      end
+      hash
     end
 
     def self.collect_details_old_school doc
