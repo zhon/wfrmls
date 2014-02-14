@@ -10,6 +10,11 @@ require 'watir'
 
 # TODO save username and password into config file if new or not there
 
+if Settings[:firefox_path]
+  require 'watir-webdriver'
+  Selenium::WebDriver::Firefox::Binary.path = Settings[:firefox_path]
+end
+
 address = Settings.rest.join(' ')
 
 ie = Watir::Browser.new
