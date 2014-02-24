@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'watir'
   s.add_dependency 'configliere'
-  s.add_dependency 'street_address_ext'
+  s.add_dependency 'street_address_ext', '~> 0.0', '>= 0.0.3'
   s.add_dependency 'activesupport'
   s.add_dependency 'i18n'
   s.add_dependency 'nokogiri'
